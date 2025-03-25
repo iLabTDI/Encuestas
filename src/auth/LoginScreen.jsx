@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { supabase } from "../../backend/supabaseClient" // Archivo TS que exporta el cliente de Supabase
 import GoogleAuthButton from "../components/GoogleAuthButton"
@@ -7,7 +5,7 @@ import { Info, X, AlertCircle, CheckCircle, Shield, ShieldCheck } from "lucide-r
 // Importación para React Router (comentada hasta que se necesite)
 // import { useNavigate } from "react-router-dom"
 
-export default function AuthPage() {
+export const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
@@ -26,11 +24,10 @@ export default function AuthPage() {
       supabase.auth.signOut()
     } else {
       setSuccess("¡Inicio de sesión exitoso!")
-
       // Código para redireccionar a otra página usando React Router (comentado por ahora)
-      // setTimeout(() => {
-      //   navigate("/dashboard") // Redirige a la página de dashboard
-      // }, 1500)
+      setTimeout(() => {
+        navigate("/dashboard") // Redirige a la página de dashboard
+      }, 1500)
     }
   }
 

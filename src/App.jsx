@@ -1,21 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
-import Graficas from "./screens/admin/Graficas";
-import Dashboard from "./screens/admin/Dashboard";
-import AgregarPregunta from "./screens/admin/AgregarPregunta";
+// import Graficas from "./screens/admin/Graficas";
+// import Dashboard from "./screens/admin/Dashboard";
+// import AgregarPregunta from "./screens/admin/AgregarPregunta";
+import { AuthPage } from "./auth/LoginScreen";
+import { Navigation } from "./Routes";
 
 export default function App() {
   return (
-    <Router>
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-grow p-6">
-          <Routes>
-            <Route path="/graficas" element={<Dashboard />} />
-            <Route path="/agragar-pregunta" element={<AgregarPregunta />} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <AuthPage />
+      {/* <Navigation /> */}
+    </div>
   );
 }
