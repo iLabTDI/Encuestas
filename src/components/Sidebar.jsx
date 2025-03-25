@@ -9,7 +9,7 @@ export default function Sidebar() {
           📊 Gráficas
         </Link>
         <Link
-          to="/agragar-pregunta"
+          to="/agregar-pregunta"
           className="block p-2 bg-blue-100 rounded-md"
         >
           ➕ Añadir pregunta

@@ -1,12 +1,15 @@
 import { useState } from "react";
 import Opcion from "../../components/Opcion.jsx";
+import axios from "axios"; // Necesitas instalar axios
 
 export default function AgregarPregunta() {
   const [pregunta, setPregunta] = useState("");
   const [opciones, setOpciones] = useState([""]);
+  const [mensaje, setMensaje] = useState(""); // Para mostrar el mensaje de éxito o error
+  const [preguntaId, setPreguntaId] = useState(null); // ID de la pregunta, que se obtiene al crearla
 
   const agregarOpcion = () => {
-    setOpciones([...opciones, ""]); // Agrega una nueva opción vacía
+    setOpciones([...opciones, ""]);
   };
 
   const actualizarOpcion = (index, valor) => {
@@ -22,10 +25,56 @@ export default function AgregarPregunta() {
     }
   };
 
-  const manejarEnvio = (e) => {
+  const manejarEnvioPregunta = async (e) => {
     e.preventDefault();
-    console.log("Pregunta:", pregunta);
-    console.log("Opciones:", opciones);
+    try {
+      // Enviar la pregunta al servidor
+      const respuestaPregunta = await axios.post(
+        "http://localhost:5000/api/preguntas",
+        {
+          texto: pregunta,
+        }
+      );
+
+      if (respuestaPregunta.status === 200) {
+        const id = respuestaPregunta.data.id; // Asumimos que el servidor devuelve el ID de la pregunta
+        setPreguntaId(id);
+        setMensaje("Pregunta guardada. Ahora se agregarán las opciones.");
+
+        // Ahora, guardar las opciones asociadas a la pregunta
+        await guardarOpciones(id);
+      }
+    } catch (error) {
+      console.error("Error al guardar la pregunta:", error);
+      setMensaje("Hubo un error al guardar la pregunta.");
+    }
+  };
+
+  const guardarOpciones = async (preguntaId) => {
+    console.log("ID: ", preguntaId);
+    try {
+      // Filtrar opciones vacías
+      const opcionesNoVacias = opciones.filter(
+        (opcion) => opcion.trim() !== ""
+      );
+
+      // Si no hay opciones válidas, no hacer nada
+      if (opcionesNoVacias.length === 0) {
+        setMensaje("No se han agregado opciones válidas.");
+        return;
+      }
+
+      // Enviar todas las opciones de una sola vez
+      await axios.post("http://localhost:5000/api/opciones/multiple", {
+        pregunta_id: preguntaId,
+        opciones: opcionesNoVacias,
+      });
+
+      setMensaje("Todas las opciones han sido guardadas.");
+    } catch (error) {
+      console.error("Error al guardar las opciones:", error);
+      setMensaje("Hubo un error al guardar las opciones.");
+    }
   };
 
   return (
@@ -37,8 +86,11 @@ export default function AgregarPregunta() {
         Escribe la pregunta que quieras añadir al formulario
       </p>
 
+      {/* Mostrar mensaje de éxito o error */}
+      {mensaje && <p className="text-center text-lg mb-4">{mensaje}</p>}
+
       <form
-        onSubmit={manejarEnvio}
+        onSubmit={manejarEnvioPregunta}
         className="bg-white p-4 shadow-md rounded-md max-w-lg mx-auto"
       >
         <input
@@ -49,14 +101,16 @@ export default function AgregarPregunta() {
           className="w-full p-2 border rounded-md mb-4"
         />
 
+        {/* Aquí es donde se generan las opciones */}
         {opciones.map((opcion, index) => (
-          <Opcion
-            key={index}
-            index={index + 1}
-            valor={opcion}
-            onChange={(valor) => actualizarOpcion(index, valor)}
-            onDelete={() => eliminarOpcion(index)}
-          />
+          <div key={index} className="mb-4">
+            <Opcion
+              index={index + 1}
+              valor={opcion}
+              onChange={(valor) => actualizarOpcion(index, valor)}
+              onDelete={() => eliminarOpcion(index)}
+            />
+          </div>
         ))}
 
         <button
