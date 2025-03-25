@@ -4,7 +4,6 @@ import Sidebar from "./components/Sidebar";
 // import Dashboard from "./screens/admin/Dashboard";
 // import AgregarPregunta from "./screens/admin/AgregarPregunta";
 import { AuthPage } from "./auth/LoginScreen";
-import { Navigation } from "./Routes";
 
 export default function App() {
   return (
