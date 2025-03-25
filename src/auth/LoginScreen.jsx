@@ -17,6 +17,7 @@ export default function AuthPage() {
   // Hook de navegación de React Router (comentado hasta que se necesite)
   // const navigate = useNavigate()
 
+
   // Función para validar que el correo sea institucional
   const validarDominio = (email) => {
     if (!email.endsWith("@alumnos.udg.mx")) {
