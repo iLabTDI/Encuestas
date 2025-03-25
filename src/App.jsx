@@ -1,12 +1,21 @@
-import React from "react";
-// import LoginScreen from "../src/auth/LoginScreen";
-import AuthPage from "../src/auth/LoginScreen";
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import Graficas from "./screens/admin/Graficas";
+import Dashboard from "./screens/admin/Dashboard";
+import AgregarPregunta from "./screens/admin/AgregarPregunta";
 
 export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <AuthPage />
-    </main>
-  )
+    <Router>
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-grow p-6">
+          <Routes>
+            <Route path="/graficas" element={<Dashboard />} />
+            <Route path="/agragar-pregunta" element={<AgregarPregunta />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  );
 }
