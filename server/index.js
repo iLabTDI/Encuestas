@@ -38,12 +38,12 @@ app.post("/api/preguntas", async (req, res) => {
     // Devolver el ID de la pregunta insertada
     res.status(200).json({ id: result.insertId });
   } catch (err) {
-    console.error("Error al insertar en la base de datos:", err);
+    console.error("Error al insertar la pregunta en la base de datos:", err);
     res.status(500).send("Error al guardar la pregunta");
   }
 });
 
-// Endpoint para insertar múltiples opciones
+// Endpoint para insertar múltiples opciones asociadas a una pregunta
 app.post("/api/opciones/multiple", async (req, res) => {
   const { pregunta_id, opciones } = req.body;
 
@@ -67,12 +67,23 @@ app.post("/api/opciones/multiple", async (req, res) => {
 
 // Endpoint para obtener todas las preguntas
 app.get("/api/preguntas", async (req, res) => {
+  const { estado } = req.query; // Leer el parámetro de consulta "estado"
+
   try {
-    const [results] = await db.query("SELECT * FROM preguntas");
+    let query = "SELECT * FROM preguntas";
+    const params = [];
+
+    if (estado === "1") {
+      query += " WHERE estado = 1"; // Solo preguntas activas
+    } else if (estado === "0") {
+      query += " WHERE estado = 0"; // Solo preguntas inactivas
+    }
+
+    const [results] = await db.query(query, params);
     res.status(200).json(results);
   } catch (err) {
-    console.error("Error al obtener preguntas:", err);
-    res.status(500).send("Error al obtener preguntas");
+    console.error("Error al obtener las preguntas:", err);
+    res.status(500).send("Error al obtener las preguntas");
   }
 });
 
@@ -145,7 +156,7 @@ app.put("/api/preguntas/:id", async (req, res) => {
 
     res.status(200).json({ mensaje: "Pregunta y opciones actualizadas" });
   } catch (err) {
-    console.error("Error al actualizar:", err);
+    console.error("Error al actualizar la pregunta y opciones:", err);
     res.status(500).json({ mensaje: "Error en la actualización" });
   }
 });
@@ -156,17 +167,20 @@ app.delete("/api/opciones/:id", async (req, res) => {
 
   try {
     await db.query("DELETE FROM opciones WHERE id = ?", [id]);
-    res.status(200).json({ mensaje: "Opción eliminada" });
+    res.status(200).json({ mensaje: "Opción eliminada con éxito" });
   } catch (err) {
-    console.error("Error al eliminar opción:", err);
-    res.status(500).json({ mensaje: "Error al eliminar opción" });
+    console.error("Error al eliminar la opción:", err);
+    res.status(500).json({ mensaje: "Error al eliminar la opción" });
   }
 });
 
-//Obtiene las preguntas y sus opciones para el formulario
+// Endpoint para obtener preguntas y sus opciones para el formulario
 app.get("/api/formulario", async (req, res) => {
   try {
-    const [preguntas] = await db.query("SELECT * FROM preguntas");
+    // Obtener solo preguntas activas
+    const [preguntas] = await db.query(
+      "SELECT * FROM preguntas WHERE estado = 1"
+    );
 
     const preguntasConOpciones = await Promise.all(
       preguntas.map(async (pregunta) => {
@@ -237,6 +251,36 @@ app.get("/api/preguntas/:id/votos", async (req, res) => {
   } catch (err) {
     console.error("Error al obtener la pregunta con votos:", err);
     res.status(500).json({ mensaje: "Error al obtener la pregunta con votos" });
+  }
+});
+
+// Endpoint para cambiar el estado de una pregunta (activar o inactivar)
+app.put("/api/preguntas/:id/estado", async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body; // Estado nuevo (1 para activo, 0 para inactivo)
+
+  if (estado !== 0 && estado !== 1) {
+    return res
+      .status(400)
+      .json({ mensaje: "Estado inválido. Debe ser 0 o 1." });
+  }
+
+  try {
+    const [result] = await db.query(
+      "UPDATE preguntas SET estado = ? WHERE id = ?",
+      [estado, id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensaje: "Pregunta no encontrada" });
+    }
+    res
+      .status(200)
+      .json({ mensaje: `Pregunta actualizada a estado ${estado}` });
+  } catch (err) {
+    console.error("Error al actualizar el estado de la pregunta:", err);
+    res
+      .status(500)
+      .json({ mensaje: "Error al actualizar el estado de la pregunta" });
   }
 });
 

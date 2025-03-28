@@ -5,6 +5,7 @@ export default function Sidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
+  // Función para verificar si la ruta está activa
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -28,9 +29,9 @@ export default function Sidebar() {
         </h2>
         <nav className="space-y-4">
           <Link
-            to="/graficas"
+            to="/admin"
             className={`block p-3 rounded-md ${
-              isActive("/graficas")
+              isActive("/admin/graficas")
                 ? "bg-blue-700 font-bold shadow-md"
                 : "hover:bg-blue-800"
             }`}
@@ -38,9 +39,9 @@ export default function Sidebar() {
             📊 Gráficas
           </Link>
           <Link
-            to="/agregar-pregunta"
+            to="/admin/agregar-pregunta"
             className={`block p-3 rounded-md ${
-              isActive("/agregar-pregunta")
+              isActive("/admin/agregar-pregunta")
                 ? "bg-blue-700 font-bold shadow-md"
                 : "hover:bg-blue-800"
             }`}
@@ -48,9 +49,9 @@ export default function Sidebar() {
             ➕ Añadir pregunta
           </Link>
           <Link
-            to="/preguntas-activas"
+            to="/admin/preguntas-activas"
             className={`block p-3 rounded-md ${
-              isActive("/preguntas-activas")
+              isActive("/admin/preguntas-activas")
                 ? "bg-blue-700 font-bold shadow-md"
                 : "hover:bg-blue-800"
             }`}

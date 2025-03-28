@@ -13,7 +13,7 @@ export default function OpcionNew({ index, valor, onChange, onDelete }) {
         value={valor}
         onChange={(e) => onChange(e.target.value)}
         placeholder={`Opción ${index}`}
-        className="flex-1 p-2 border rounded-md"
+        className="flex-1 p-2 border rounded-md ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <button
         type="button" // Asegúrate de que sea un botón de tipo "button" para evitar el envío del formulario

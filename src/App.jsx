@@ -8,12 +8,13 @@ export default function App() {
     <Router>
       <Routes>
         {/* Página de login 
-        <Route path="/" element={<AuthPage />} />
+        
         */}
+        <Route path="/" element={<AuthPage />} />
 
         {/* Rutas del admin, usando `/*` para manejar subrutas */}
 
-        <Route path="/*" element={<AdminPanel />} />
+        <Route path="/admin/*" element={<AdminPanel />} />
         <Route path="/formulario" element={<Formulario />} />
       </Routes>
     </Router>

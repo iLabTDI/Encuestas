@@ -10,7 +10,7 @@ export default function Opcion({ id, index, valor, onChange, onDelete }) {
         value={valor}
         onChange={(e) => onChange({ id, texto: e.target.value })} // 🔹 Mantiene el ID al actualizar
         placeholder="Inserta la opción"
-        className="w-full p-2 border rounded-md"
+        className="w-full p-2 border rounded-md ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       <button

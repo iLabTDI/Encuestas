@@ -71,30 +71,38 @@ export default function AgregarPregunta() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-center mb-4">
-        Añadir pregunta al formulario
+    <div className="p-6 flex flex-col items-center">
+      <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">
+        Añadir Pregunta
       </h1>
-      <p className="text-center text-gray-600 mb-4">
-        Escribe la pregunta que quieras añadir al formulario
+      <p className="text-center text-gray-600 mb-6">
+        Escribe la pregunta y añade las opciones correspondientes.
       </p>
 
-      {mensaje && <p className="text-center text-lg mb-4">{mensaje}</p>}
+      {mensaje && (
+        <p className="text-center text-lg mb-4 text-green-600">{mensaje}</p>
+      )}
 
       <form
         onSubmit={manejarEnvioPregunta}
-        className="bg-white p-4 shadow-md rounded-md max-w-lg mx-auto"
+        className="bg-white p-6 shadow-lg rounded-lg max-w-lg w-full"
       >
+        <label className="block text-gray-700 font-medium mb-2">
+          Pregunta:
+        </label>
         <input
           type="text"
           value={pregunta}
           onChange={(e) => setPregunta(e.target.value)}
           placeholder="Ingresa la pregunta"
-          className="w-full p-2 border rounded-md mb-4"
+          className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
+        <label className="block text-gray-700 font-medium mb-2">
+          Opciones:
+        </label>
         {opciones.map((opcion, index) => (
-          <div key={index} className="mb-4">
+          <div key={index} className="flex items-center mb-4">
             <OpcionNew
               index={index + 1}
               valor={opcion.texto} // Pasar solo el texto
@@ -107,17 +115,27 @@ export default function AgregarPregunta() {
         <button
           type="button"
           onClick={agregarOpcion}
-          className="text-green-600 mt-2 block text-center w-full"
+          className="w-full text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-100 transition duration-200"
         >
           + Añadir opción
         </button>
 
-        <button
-          type="submit"
-          className="mt-4 bg-green-600 text-white py-2 px-4 rounded-md w-full hover:bg-green-700"
-        >
-          Agregar pregunta
-        </button>
+        <div className="flex justify-between mt-6">
+          <button
+            type="button"
+            onClick={() => window.history.back()} // Regresar a la página anterior
+            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200"
+          >
+            Guardar Pregunta
+          </button>
+        </div>
       </form>
     </div>
   );

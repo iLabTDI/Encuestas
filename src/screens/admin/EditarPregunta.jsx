@@ -105,12 +105,24 @@ export default function EditarPregunta() {
           + Añadir opción
         </button>
 
-        <button
-          type="submit"
-          className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md w-full hover:bg-blue-700"
-        >
-          Guardar Cambios
-        </button>
+        <div className="flex justify-between mt-4">
+          {/* Botón de Cancelar */}
+          <button
+            type="button"
+            onClick={() => navigate(-1)} // Regresa a la página anterior
+            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+          >
+            Cancelar
+          </button>
+
+          {/* Botón de Guardar */}
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+          >
+            Guardar Cambios
+          </button>
+        </div>
       </form>
     </div>
   );

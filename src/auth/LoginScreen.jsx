@@ -9,8 +9,8 @@ import {
   Shield,
   ShieldCheck,
 } from "lucide-react";
-// Importación para React Router (comentada hasta que se necesite)
-// import { useNavigate } from "react-router-dom"
+// Importa useNavigate desde React Router
+import { useNavigate } from "react-router-dom";
 
 export const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,21 +19,29 @@ export const AuthPage = () => {
   const [session, setSession] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
 
-  // Hook de navegación de React Router (comentado hasta que se necesite)
-  // const navigate = useNavigate()
+  // Hook de navegación de React Router
+  const navigate = useNavigate();
 
-  // Función para validar que el correo sea institucional
+  // Función para validar el correo
   const validarDominio = (email) => {
-    if (!email.endsWith("@alumnos.udg.mx")) {
-      setError("Solo se aceptan cuentas institucionales (@alumnos.udg.mx)");
-      // Si no es el dominio correcto, cierra la sesión
-      supabase.auth.signOut();
-    } else {
-      setSuccess("¡Inicio de sesión exitoso!");
-      // Código para redireccionar a otra página usando React Router (comentado por ahora)
+    if (email === "hector.rivera2888@alumnos.udg.mx") {
+      setSuccess("¡Inicio de sesión exitoso como administrador!");
+      // Redirige al panel de administración
       setTimeout(() => {
-        navigate("/dashboard"); // Redirige a la página de dashboard
+        navigate("/admin");
       }, 1500);
+    } else if (email.endsWith("@alumnos.udg.mx")) {
+      setSuccess("¡Inicio de sesión exitoso!");
+      // Redirige al formulario
+      setTimeout(() => {
+        navigate("/formulario");
+      }, 1500);
+    } else {
+      setError(
+        "Solo se aceptan cuentas institucionales (@alumnos.udg.mx) o el correo del administrador."
+      );
+      // Si no es válido, cierra la sesión
+      supabase.auth.signOut();
     }
   };
 
