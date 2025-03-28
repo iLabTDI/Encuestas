@@ -1,20 +1,20 @@
 import { useState } from "react";
-import Opcion from "../../components/Opcion.jsx";
-import axios from "axios"; // Necesitas instalar axios
+import OpcionNew from "../../components/OpcionNew.jsx"; // Cambiar a OpcionNew
+import axios from "axios";
 
 export default function AgregarPregunta() {
   const [pregunta, setPregunta] = useState("");
-  const [opciones, setOpciones] = useState([""]);
-  const [mensaje, setMensaje] = useState(""); // Para mostrar el mensaje de éxito o error
-  const [preguntaId, setPreguntaId] = useState(null); // ID de la pregunta, que se obtiene al crearla
+  const [opciones, setOpciones] = useState([{ texto: "" }]); // Manejar opciones como objetos
+  const [mensaje, setMensaje] = useState("");
+  const [preguntaId, setPreguntaId] = useState(null);
 
   const agregarOpcion = () => {
-    setOpciones([...opciones, ""]);
+    setOpciones([...opciones, { texto: "" }]); // Agregar una nueva opción vacía
   };
 
   const actualizarOpcion = (index, valor) => {
     const nuevasOpciones = [...opciones];
-    nuevasOpciones[index] = valor;
+    nuevasOpciones[index].texto = valor; // Actualizar solo el texto de la opción
     setOpciones(nuevasOpciones);
   };
 
@@ -28,7 +28,6 @@ export default function AgregarPregunta() {
   const manejarEnvioPregunta = async (e) => {
     e.preventDefault();
     try {
-      // Enviar la pregunta al servidor
       const respuestaPregunta = await axios.post(
         "http://localhost:5000/api/preguntas",
         {
@@ -37,11 +36,9 @@ export default function AgregarPregunta() {
       );
 
       if (respuestaPregunta.status === 200) {
-        const id = respuestaPregunta.data.id; // Asumimos que el servidor devuelve el ID de la pregunta
+        const id = respuestaPregunta.data.id;
         setPreguntaId(id);
         setMensaje("Pregunta guardada. Ahora se agregarán las opciones.");
-
-        // Ahora, guardar las opciones asociadas a la pregunta
         await guardarOpciones(id);
       }
     } catch (error) {
@@ -51,20 +48,16 @@ export default function AgregarPregunta() {
   };
 
   const guardarOpciones = async (preguntaId) => {
-    console.log("ID: ", preguntaId);
     try {
-      // Filtrar opciones vacías
-      const opcionesNoVacias = opciones.filter(
-        (opcion) => opcion.trim() !== ""
-      );
+      const opcionesNoVacias = opciones
+        .filter((opcion) => opcion.texto.trim() !== "")
+        .map((opcion) => opcion.texto);
 
-      // Si no hay opciones válidas, no hacer nada
       if (opcionesNoVacias.length === 0) {
         setMensaje("No se han agregado opciones válidas.");
         return;
       }
 
-      // Enviar todas las opciones de una sola vez
       await axios.post("http://localhost:5000/api/opciones/multiple", {
         pregunta_id: preguntaId,
         opciones: opcionesNoVacias,
@@ -86,7 +79,6 @@ export default function AgregarPregunta() {
         Escribe la pregunta que quieras añadir al formulario
       </p>
 
-      {/* Mostrar mensaje de éxito o error */}
       {mensaje && <p className="text-center text-lg mb-4">{mensaje}</p>}
 
       <form
@@ -101,12 +93,11 @@ export default function AgregarPregunta() {
           className="w-full p-2 border rounded-md mb-4"
         />
 
-        {/* Aquí es donde se generan las opciones */}
         {opciones.map((opcion, index) => (
           <div key={index} className="mb-4">
-            <Opcion
+            <OpcionNew
               index={index + 1}
-              valor={opcion}
+              valor={opcion.texto} // Pasar solo el texto
               onChange={(valor) => actualizarOpcion(index, valor)}
               onDelete={() => eliminarOpcion(index)}
             />

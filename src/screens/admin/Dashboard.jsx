@@ -1,23 +1,35 @@
-import Sidebar from "../../components/Sidebar";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import SurveyCard from "../../components/SurveyCard";
 
 export default function Dashboard() {
-  const encuestas = [
-    { id: 1, nombre: "Encuesta 1" },
-    { id: 2, nombre: "Encuesta 2" },
-    { id: 3, nombre: "Encuesta 3" },
-    { id: 4, nombre: "Encuesta 4" },
-    { id: 5, nombre: "Encuesta 5" },
-    { id: 6, nombre: "Encuesta 6" },
-  ];
+  const [preguntas, setPreguntas] = useState([]);
+
+  useEffect(() => {
+    // Obtener preguntas desde el backend
+    const fetchPreguntas = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/preguntas");
+        setPreguntas(response.data);
+      } catch (error) {
+        console.error("Error al obtener las preguntas:", error);
+      }
+    };
+
+    fetchPreguntas();
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">
       <main className="flex-1 p-6">
         <h1 className="text-2xl font-bold mb-4">Análisis de encuestas</h1>
-        <div className="grid grid-cols-3 gap-6">
-          {encuestas.map((encuesta) => (
-            <SurveyCard key={encuesta.id} nombre={encuesta.nombre} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {preguntas.map((pregunta) => (
+            <SurveyCard
+              key={pregunta.id}
+              nombre={pregunta.texto}
+              datos={pregunta.datos}
+            />
           ))}
         </div>
       </main>
