@@ -45,10 +45,46 @@ export default function Formulario() {
       <div className="bg-white text-blue-900 shadow-2xl rounded-2xl p-8 w-full max-w-3xl">
         {/* Título */}
         <h1 className="text-4xl font-bold text-center text-blue-900 mb-6">
-          Encuesta UDG
+          Encuesta Uso de Inteligencias Artificiales en la Universidad de
+          Guadalajara
         </h1>
         <p className="text-center text-gray-600 font-medium mb-6">
-          Responde las siguientes preguntas seleccionando una opción.
+          Este cuestionario esta diseñado para conocer tus opiniones acerca del
+          uso de Inteligencias Artificiales en tus clases, tares y otras
+          actividades.
+        </p>
+
+        <p className="text-left text-gray-600 font-medium mb-6">
+          Gracias por tomarte el tiempo de estar en esta encuesta antes de
+          empezar es importante aclarar los siguientes puntos:
+        </p>
+        <p className="text-left text-gray-600 font-medium mb-6">
+          -Esta encuesta es un diagnóstico acerca del uso de tu persona de
+          Inteligencias Artificiales. Por lo que únicamente se te pedirá
+          contestar de la forma más verídica y adecuada a tu uso.
+        </p>
+        <p className="text-left text-gray-600 font-medium mb-6">
+          -Si decides participar debes saber que tu participación es voluntaria
+          y puedes abandonar esta encuesta en el momento que así lo decidas, o
+          bien no contestarla.
+        </p>
+        <p className="text-left text-gray-600 font-medium mb-6">
+          -No conlleva ningún riesgo ni condicionamiento. Por lo que debes de
+          saber que en caso de participar todos tus datos personales serán
+          protegidos y que los resultados de esta encuesta serán estrictamente
+          confidenciales. Aplicándose únicamente con los fines de investigación
+          asociados a este tema.
+        </p>
+        <p className="text-left text-gray-600 font-medium mb-6">
+          Agradezco de antemano, tu interés y tiempos, en caso de querer
+          continuar te pido que aceptes este consentimiento y puedas contestar
+          de forma personal y lo más verídica en torno a tu experiencia y uso de
+          IA.
+        </p>
+        <hr className="border-t-2 border-yellow-500 mb-6" />
+        <p className="text-left text-gray-600 font-medium mb-6">
+          En esta sección te pedimos que respondas acorde a tu datos personales
+          (Recuerda que serán usados únicamente para fines de la investigación)
         </p>
         <hr className="border-t-2 border-yellow-500 mb-6" />
 
