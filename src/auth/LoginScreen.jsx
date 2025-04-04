@@ -26,12 +26,18 @@ export const AuthPage = () => {
   const validarDominio = (email) => {
     if (email === "hector.rivera2888@alumnos.udg.mx") {
       setSuccess("¡Inicio de sesión exitoso como administrador!");
+      // Guarda el token y el rol en localStorage
+      localStorage.setItem("token", "admin-token"); // Simula un token
+      localStorage.setItem("role", "admin"); // Guarda el rol como admin
       // Redirige al panel de administración
       setTimeout(() => {
         navigate("/admin");
       }, 1500);
     } else if (email.endsWith("@alumnos.udg.mx")) {
       setSuccess("¡Inicio de sesión exitoso!");
+      // Guarda el token y el rol en localStorage
+      localStorage.setItem("token", "user-token"); // Simula un token
+      localStorage.setItem("role", "user"); // Guarda el rol como user
       // Redirige al formulario
       setTimeout(() => {
         navigate("/formulario");

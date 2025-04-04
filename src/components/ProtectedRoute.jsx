@@ -1,16 +1,21 @@
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ isAuthenticated, isAdmin, children }) {
+export default function ProtectedRoute({
+  isAuthenticated,
+  role,
+  requiredRole,
+  children,
+}) {
   // Si no está autenticado, redirige al login
   if (!isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
-  // Si no es administrador y está intentando acceder a rutas de admin, redirige al formulario
-  if (!isAdmin) {
-    return <Navigate to="/formulario" />;
+  // Si se requiere un rol específico y el usuario no lo tiene, redirige al formulario
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to="/formulario" replace />;
   }
 
-  // Si está autenticado y es administrador, renderiza el contenido protegido
+  // Si pasa las verificaciones, renderiza el contenido
   return children;
 }

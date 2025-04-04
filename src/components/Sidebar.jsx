@@ -58,6 +58,16 @@ export default function Sidebar() {
           >
             ✅ Preguntas activas
           </Link>
+          <Link
+            to="/admin/formulario-preview"
+            className={`block p-3 rounded-md ${
+              isActive("/admin/formulario-preview")
+                ? "bg-blue-700 font-bold shadow-md"
+                : "hover:bg-blue-800"
+            }`}
+          >
+            👁️ Vista previa del formulario
+          </Link>
         </nav>
       </aside>
 

@@ -19,6 +19,7 @@
     "mysql2": "^3.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-feather": "^2.0.10",
     "react-responsive": "^10.0.1",
     "react-router-dom": "^7.4.0",
     "recharts": "^2.15.1"

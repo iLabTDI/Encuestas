@@ -86,7 +86,7 @@ export default function PreguntasActivas() {
               )}
             </span>
             <div className="space-x-2">
-              <Link to={`/editar-pregunta/${pregunta.id}`}>
+              <Link to={`/admin/editar-pregunta/${pregunta.id}`}>
                 <button className="bg-blue-500 text-white p-2 rounded-md mr-2">
                   ✏️
                 </button>
