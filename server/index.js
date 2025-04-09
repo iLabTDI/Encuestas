@@ -2,9 +2,19 @@ import express from "express";
 import mysql from "mysql2";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { fileURLToPath } from "url";
+import path from "path";
+import dotenv from "dotenv";
+
+// Crear __dirname manualmente
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Cargar variables de entorno desde el archivo .env en la raíz
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -12,10 +22,10 @@ app.use(bodyParser.json());
 // Crear conexión con soporte de Promesas
 const db = mysql
   .createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Ragnarok76_iLab",
-    database: "encuesta_udg",
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   })
   .promise();
 

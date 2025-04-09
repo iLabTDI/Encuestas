@@ -9,6 +9,14 @@ export default function Formulario() {
   const [consentimiento, setConsentimiento] = useState(false); // Estado para el consentimiento
   const navigate = useNavigate();
 
+  // Verificar autenticación al cargar el componente
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/"); // Redirige al login si no hay token
+    }
+  }, [navigate]);
+
   useEffect(() => {
     // Obtener preguntas activas con opciones desde el backend
     axios
@@ -22,9 +30,15 @@ export default function Formulario() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token"); // Elimina el token de autenticación
-    localStorage.removeItem("role"); // Elimina el rol del usuario
-    navigate("/"); // Redirige al login
+    // Elimina todas las credenciales del almacenamiento local
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+
+    // Opcional: Si usas cookies para la autenticación, puedes limpiarlas aquí
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    // Redirige al usuario al login
+    navigate("/");
   };
 
   const manejarEnvio = async (e) => {

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate
 import axios from "axios";
 
 export default function ModalEditarPregunta({ pregunta, onClose, onUpdate }) {
   const [textoPregunta, setTextoPregunta] = useState(pregunta.texto);
   const [opciones, setOpciones] = useState(pregunta.opciones);
+  const navigate = useNavigate(); // Inicializa useNavigate
 
   const actualizarOpcion = (index, nuevoTexto) => {
     const nuevasOpciones = [...opciones];
@@ -30,6 +32,9 @@ export default function ModalEditarPregunta({ pregunta, onClose, onUpdate }) {
 
       onUpdate(); // Recargar las preguntas después de editar
       onClose(); // Cerrar el modal
+
+      // Redirige a la página de "Preguntas Activas"
+      navigate("/admin/preguntas-activas");
     } catch (error) {
       console.error("Error al actualizar la pregunta:", error);
     }
