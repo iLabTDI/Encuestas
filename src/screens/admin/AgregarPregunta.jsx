@@ -1,20 +1,20 @@
 import { useState } from "react";
-import OpcionNew from "../../components/OpcionNew.jsx"; // Cambiar a OpcionNew
+import OpcionNew from "../../components/OpcionNew.jsx";
 import axios from "axios";
 
 export default function AgregarPregunta() {
   const [pregunta, setPregunta] = useState("");
-  const [opciones, setOpciones] = useState([{ texto: "" }]); // Manejar opciones como objetos
+  const [opciones, setOpciones] = useState([{ texto: "" }]);
   const [mensaje, setMensaje] = useState("");
-  const [preguntaId, setPreguntaId] = useState(null);
+  const [tipoPregunta, setTipoPregunta] = useState("cerrada"); // Estado para el tipo de pregunta
 
   const agregarOpcion = () => {
-    setOpciones([...opciones, { texto: "" }]); // Agregar una nueva opción vacía
+    setOpciones([...opciones, { texto: "" }]);
   };
 
   const actualizarOpcion = (index, valor) => {
     const nuevasOpciones = [...opciones];
-    nuevasOpciones[index].texto = valor; // Actualizar solo el texto de la opción
+    nuevasOpciones[index].texto = valor;
     setOpciones(nuevasOpciones);
   };
 
@@ -26,20 +26,24 @@ export default function AgregarPregunta() {
   };
 
   const manejarEnvioPregunta = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Previene la recarga automática
+    console.log("Enviando pregunta:", { texto: pregunta, tipo: tipoPregunta }); // Verifica el valor
     try {
       const respuestaPregunta = await axios.post(
         "http://localhost:5000/api/preguntas",
         {
           texto: pregunta,
+          tipo: tipoPregunta, // Enviar el tipo de pregunta
         }
       );
 
       if (respuestaPregunta.status === 200) {
-        const id = respuestaPregunta.data.id;
-        setPreguntaId(id);
-        setMensaje("Pregunta guardada. Ahora se agregarán las opciones.");
-        await guardarOpciones(id);
+        setMensaje("Pregunta guardada con éxito.");
+
+        if (tipoPregunta === "cerrada") {
+          const id = respuestaPregunta.data.id;
+          await guardarOpciones(id);
+        }
       }
     } catch (error) {
       console.error("Error al guardar la pregunta:", error);
@@ -76,7 +80,7 @@ export default function AgregarPregunta() {
         Añadir Pregunta
       </h1>
       <p className="text-center text-gray-600 mb-6">
-        Escribe la pregunta y añade las opciones correspondientes.
+        Escribe la pregunta y selecciona el tipo.
       </p>
 
       {mensaje && (
@@ -90,40 +94,64 @@ export default function AgregarPregunta() {
         <label className="block text-gray-700 font-medium mb-2">
           Pregunta:
         </label>
-        <input
-          type="text"
+        <textarea
           value={pregunta}
           onChange={(e) => setPregunta(e.target.value)}
+          onInput={(e) => {
+            e.target.style.height = "auto"; // Restablece la altura
+            e.target.style.height = `${e.target.scrollHeight}px`; // Ajusta la altura al contenido
+          }}
           placeholder="Ingresa la pregunta"
-          className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
         />
 
         <label className="block text-gray-700 font-medium mb-2">
-          Opciones:
+          Tipo de Pregunta:
         </label>
-        {opciones.map((opcion, index) => (
-          <div key={index} className="flex items-center mb-4">
-            <OpcionNew
-              index={index + 1}
-              valor={opcion.texto} // Pasar solo el texto
-              onChange={(valor) => actualizarOpcion(index, valor)}
-              onDelete={() => eliminarOpcion(index)}
-            />
-          </div>
-        ))}
-
-        <button
-          type="button"
-          onClick={agregarOpcion}
-          className="w-full text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-100 transition duration-200"
+        <select
+          value={tipoPregunta}
+          onChange={(e) => {
+            const nuevoTipo = e.target.value;
+            console.log(`Tipo de pregunta cambiado a: ${nuevoTipo}`); // Log para registrar el cambio
+            setTipoPregunta(nuevoTipo);
+          }}
+          className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          + Añadir opción
-        </button>
+          <option value="cerrada">Cerrada (con opciones)</option>
+          <option value="abierta">Abierta (respuesta libre)</option>
+        </select>
+
+        {/* Mostrar opciones solo si la pregunta es cerrada */}
+        {tipoPregunta === "cerrada" && (
+          <>
+            <label className="block text-gray-700 font-medium mb-2">
+              Opciones:
+            </label>
+            {opciones.map((opcion, index) => (
+              <div key={index} className="flex items-center mb-4">
+                <OpcionNew
+                  index={index + 1}
+                  valor={opcion.texto}
+                  onChange={(valor) => actualizarOpcion(index, valor)}
+                  onDelete={() => eliminarOpcion(index)}
+                />
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={agregarOpcion}
+              className="w-full text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-100 transition duration-200"
+            >
+              + Añadir opción
+            </button>
+          </>
+        )}
 
         <div className="flex justify-between mt-6">
           <button
             type="button"
-            onClick={() => window.history.back()} // Regresar a la página anterior
+            onClick={() => window.history.back()}
             className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition duration-200"
           >
             Cancelar

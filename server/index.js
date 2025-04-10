@@ -31,25 +31,29 @@ const db = mysql
 
 // Endpoint para insertar una nueva pregunta
 app.post("/api/preguntas", async (req, res) => {
-  const { texto } = req.body;
+  const { texto, tipo } = req.body;
+
   if (!texto || texto.trim() === "") {
     return res
       .status(400)
       .send("El texto de la pregunta no puede estar vacío.");
   }
 
-  try {
-    // Insertar la pregunta
-    const [result] = await db.query(
-      "INSERT INTO preguntas (texto) VALUES (?)",
-      [texto]
-    );
+  if (!["abierta", "cerrada"].includes(tipo)) {
+    return res
+      .status(400)
+      .send("El tipo de pregunta debe ser 'abierta' o 'cerrada'.");
+  }
 
-    // Devolver el ID de la pregunta insertada
+  try {
+    const [result] = await db.query(
+      "INSERT INTO preguntas (texto, tipo) VALUES (?, ?)",
+      [texto, tipo]
+    );
     res.status(200).json({ id: result.insertId });
   } catch (err) {
-    console.error("Error al insertar la pregunta en la base de datos:", err);
-    res.status(500).send("Error al guardar la pregunta");
+    console.error("Error al guardar la pregunta:", err);
+    res.status(500).send("Error al guardar la pregunta.");
   }
 });
 
@@ -211,21 +215,37 @@ app.get("/api/formulario", async (req, res) => {
 
 // Endpoint para enviar respuestas
 app.post("/api/respuestas", async (req, res) => {
-  const { respuestas } = req.body;
-
-  if (!respuestas || respuestas.length === 0) {
-    return res.status(400).send("No se han recibido respuestas");
-  }
+  const { pregunta_id, opcion_id, respuesta_abierta } = req.body;
 
   try {
-    const query = "INSERT INTO respuestas (pregunta_id, opcion_id) VALUES ?";
-    const valores = respuestas.map((r) => [r.pregunta_id, r.opcion_id]);
+    // Verificar si la pregunta es abierta o cerrada
+    const [pregunta] = await db.query(
+      "SELECT tipo FROM preguntas WHERE id = ?",
+      [pregunta_id]
+    );
 
-    await db.query(query, [valores]);
-    res.status(200).send("Respuestas guardadas con éxito");
+    if (!pregunta) {
+      return res.status(404).send("La pregunta no existe.");
+    }
+
+    if (pregunta.tipo === "abierta") {
+      // Guardar respuesta abierta
+      await db.query(
+        "INSERT INTO respuestas (pregunta_id, respuesta_abierta) VALUES (?, ?)",
+        [pregunta_id, respuesta_abierta]
+      );
+    } else {
+      // Guardar respuesta cerrada
+      await db.query(
+        "INSERT INTO respuestas (pregunta_id, opcion_id) VALUES (?, ?)",
+        [pregunta_id, opcion_id]
+      );
+    }
+
+    res.status(200).send("Respuesta guardada con éxito.");
   } catch (err) {
-    console.error("Error al guardar las respuestas:", err);
-    res.status(500).send("Error al guardar las respuestas");
+    console.error("Error al guardar la respuesta:", err);
+    res.status(500).send("Error al guardar la respuesta.");
   }
 });
 
@@ -291,6 +311,42 @@ app.put("/api/preguntas/:id/estado", async (req, res) => {
     res
       .status(500)
       .json({ mensaje: "Error al actualizar el estado de la pregunta" });
+  }
+});
+
+// Endpoint para obtener respuestas de una pregunta por ID
+app.get("/api/preguntas/:id/respuestas", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [pregunta] = await db.query("SELECT * FROM preguntas WHERE id = ?", [
+      id,
+    ]);
+
+    if (!pregunta) {
+      return res.status(404).send("La pregunta no existe.");
+    }
+
+    if (pregunta.tipo === "abierta") {
+      const [respuestas] = await db.query(
+        "SELECT respuesta_abierta FROM respuestas WHERE pregunta_id = ?",
+        [id]
+      );
+      return res.status(200).json({ pregunta, respuestas });
+    } else {
+      const [opciones] = await db.query(
+        "SELECT * FROM opciones WHERE pregunta_id = ?",
+        [id]
+      );
+      const [respuestas] = await db.query(
+        "SELECT opcion_id, COUNT(*) AS votos FROM respuestas WHERE pregunta_id = ? GROUP BY opcion_id",
+        [id]
+      );
+      return res.status(200).json({ pregunta, opciones, respuestas });
+    }
+  } catch (err) {
+    console.error("Error al obtener las respuestas:", err);
+    res.status(500).send("Error al obtener las respuestas.");
   }
 });
 

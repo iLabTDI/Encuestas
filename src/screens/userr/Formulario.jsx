@@ -43,6 +43,19 @@ export default function Formulario() {
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
+
+    // Validar que todas las preguntas tengan respuesta
+    const preguntasSinResponder = preguntas.filter(
+      (pregunta) =>
+        !respuestas[pregunta.id] ||
+        respuestas[pregunta.id].toString().trim() === ""
+    );
+
+    if (preguntasSinResponder.length > 0) {
+      setMensaje("Por favor, responde todas las preguntas antes de enviar.");
+      return;
+    }
+
     try {
       const respuestasArray = Object.entries(respuestas).map(
         ([preguntaId, opcionId]) => ({
@@ -57,6 +70,16 @@ export default function Formulario() {
 
       setMensaje("Respuestas enviadas con éxito.");
       setRespuestas({}); // Resetea las respuestas
+
+      // Obtener el email del usuario desde localStorage
+      const emailUsuario = localStorage.getItem("email");
+      if (emailUsuario) {
+        console.log(
+          `Respuestas enviadas por el usuario con email: ${emailUsuario}`
+        );
+      } else {
+        console.log("No se encontró el email del usuario en localStorage.");
+      }
 
       // Cierra la sesión después de enviar las respuestas
       cerrarSesion();
@@ -148,57 +171,92 @@ export default function Formulario() {
 
         {/* Formulario */}
         <form onSubmit={manejarEnvio}>
-          {preguntas.map((pregunta) => (
-            <div
-              key={pregunta.id}
-              className="mb-8 pb-4 bg-gray-100 p-4 rounded-lg shadow-md"
-            >
-              <h2 className="text-lg font-semibold text-blue-900 mb-4">
-                {pregunta.texto}
-              </h2>
+          {/* Preguntas cerradas */}
+          {preguntas
+            .filter((pregunta) => pregunta.tipo !== "abierta")
+            .map((pregunta) => (
+              <div
+                key={pregunta.id}
+                className="mb-8 pb-4 bg-gray-100 p-4 rounded-lg shadow-md"
+              >
+                <h2 className="text-lg font-semibold text-blue-900 mb-4">
+                  {pregunta.texto}
+                </h2>
 
-              {/* Mostrar Dropdown si hay más de 10 opciones */}
-              {pregunta.opciones.length > 10 ? (
-                <select
-                  value={respuestas[pregunta.id] || ""}
-                  onChange={(e) =>
-                    manejarCambio(pregunta.id, parseInt(e.target.value))
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-md text-gray-700"
-                >
-                  <option value="" disabled>
-                    Selecciona una opción
-                  </option>
-                  {pregunta.opciones.map((opcion) => (
-                    <option key={opcion.id} value={opcion.id}>
-                      {opcion.texto}
+                {pregunta.opciones.length > 10 ? (
+                  // Mostrar Dropdown si hay más de 10 opciones
+                  <select
+                    value={respuestas[pregunta.id] || ""}
+                    onChange={(e) =>
+                      manejarCambio(pregunta.id, parseInt(e.target.value))
+                    }
+                    className="w-full p-3 border border-gray-300 rounded-md text-gray-700"
+                  >
+                    <option value="" disabled>
+                      Selecciona una opción
                     </option>
-                  ))}
-                </select>
-              ) : (
-                // Mostrar botones de radio si hay 10 o menos opciones
-                pregunta.opciones.map((opcion) => (
-                  <div key={opcion.id} className="flex items-center mb-2">
-                    <input
-                      type="radio"
-                      id={`pregunta-${pregunta.id}-opcion-${opcion.id}`}
-                      name={`pregunta-${pregunta.id}`}
-                      value={opcion.id}
-                      checked={respuestas[pregunta.id] === opcion.id || false}
-                      onChange={() => manejarCambio(pregunta.id, opcion.id)}
-                      className="h-5 w-5 text-red-600 focus:ring-yellow-500 border-gray-300"
-                    />
-                    <label
-                      htmlFor={`pregunta-${pregunta.id}-opcion-${opcion.id}`}
-                      className="ml-3 text-gray-700"
-                    >
-                      {opcion.texto}
-                    </label>
-                  </div>
-                ))
-              )}
-            </div>
-          ))}
+                    {pregunta.opciones.map((opcion) => (
+                      <option key={opcion.id} value={opcion.id}>
+                        {opcion.texto}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  // Mostrar botones de radio si hay 10 o menos opciones
+                  pregunta.opciones.map((opcion) => (
+                    <div key={opcion.id} className="flex items-center mb-2">
+                      <input
+                        type="radio"
+                        id={`pregunta-${pregunta.id}-opcion-${opcion.id}`}
+                        name={`pregunta-${pregunta.id}`}
+                        value={opcion.id}
+                        checked={respuestas[pregunta.id] === opcion.id || false}
+                        onChange={() => manejarCambio(pregunta.id, opcion.id)}
+                        className="h-5 w-5 text-red-600 focus:ring-yellow-500 border-gray-300"
+                      />
+                      <label
+                        htmlFor={`pregunta-${pregunta.id}-opcion-${opcion.id}`}
+                        className="ml-3 text-gray-700"
+                      >
+                        {opcion.texto}
+                      </label>
+                    </div>
+                  ))
+                )}
+              </div>
+            ))}
+
+          {/* Texto antes de las preguntas abiertas */}
+          <div className="mb-8">
+            <hr className="border-t-2 border-yellow-500 mb-6" />
+            <p className="text-left text-gray-600 font-medium mb-6">
+              Te pedimos por último que puedas responder de la formas más
+              abierta y honesta posible las siguientes preguntas
+            </p>
+            <hr className="border-t-2 border-yellow-500 mb-6" />
+          </div>
+
+          {/* Preguntas abiertas */}
+          {preguntas
+            .filter((pregunta) => pregunta.tipo === "abierta")
+            .map((pregunta) => (
+              <div
+                key={pregunta.id}
+                className="mb-8 pb-4 bg-gray-100 p-4 rounded-lg shadow-md"
+              >
+                <h2 className="text-lg font-semibold text-blue-900 mb-4">
+                  {pregunta.texto}
+                </h2>
+                <textarea
+                  value={respuestas[pregunta.id] || ""}
+                  onChange={(e) => manejarCambio(pregunta.id, e.target.value)}
+                  placeholder="Escribe tu respuesta aquí"
+                  className="w-full p-3 border border-gray-300 rounded-md text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            ))}
+
+          {/* Botón de envío */}
           <button
             type="submit"
             className="w-full bg-blue-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-800 transition duration-200"
