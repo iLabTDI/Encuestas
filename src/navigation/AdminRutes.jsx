@@ -4,6 +4,7 @@ import Dashboard from "../screens/admin/Dashboard";
 import AgregarPregunta from "../screens/admin/AgregarPregunta";
 import PreguntasActivas from "../screens/admin/PreguntasActivas";
 import EditarPregunta from "../screens/admin/EditarPregunta";
+import FormularioPreview from "../screens/admin/FormularioPreview";
 
 export default function AdminPanel() {
   return (
@@ -18,6 +19,7 @@ export default function AdminPanel() {
           <Route path="agregar-pregunta" element={<AgregarPregunta />} />
           <Route path="preguntas-activas" element={<PreguntasActivas />} />
           <Route path="editar-pregunta/:id" element={<EditarPregunta />} />
+          <Route path="formulario-preview" element={<FormularioPreview />} />
         </Routes>
       </div>
     </div>

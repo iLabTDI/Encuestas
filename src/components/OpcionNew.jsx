@@ -8,7 +8,7 @@ export default function OpcionNew({ index, valor, onChange, onDelete }) {
 
   return (
     <div className="flex items-center mb-2">
-      <input
+      <textarea
         type="text"
         value={valor}
         onChange={(e) => onChange(e.target.value)}
