@@ -20,7 +20,7 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-screen bg-blue-900 text-white shadow-lg p-6 z-40 transform ${
+        className={`fixed top-0 left-0 h-full bg-blue-900 text-white shadow-lg p-6 z-40 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 md:relative md:translate-x-0 md:w-64`}
       >

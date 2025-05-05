@@ -8,10 +8,9 @@ import FormularioPreview from "../screens/admin/FormularioPreview";
 
 export default function AdminPanel() {
   return (
-    <div className="flex">
-      {/* Sidebar siempre visible */}
+    <div className="min-h-screen flex">
       <Sidebar />
-      <div className="flex-grow p-6">
+      <main className="flex-1 p-6">
         <Routes>
           {/* Rutas internas del panel de administración */}
           <Route path="/" element={<Dashboard />} />
@@ -21,7 +20,7 @@ export default function AdminPanel() {
           <Route path="editar-pregunta/:id" element={<EditarPregunta />} />
           <Route path="formulario-preview" element={<FormularioPreview />} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 }

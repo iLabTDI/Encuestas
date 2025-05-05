@@ -7,6 +7,7 @@ export default function Formulario() {
   const [respuestas, setRespuestas] = useState({});
   const [mensaje, setMensaje] = useState("");
   const [consentimiento, setConsentimiento] = useState(false); // Estado para el consentimiento
+  const [accesoDenegado, setAccesoDenegado] = useState(false);
   const navigate = useNavigate();
 
   // Verificar autenticación al cargar el componente
@@ -25,17 +26,50 @@ export default function Formulario() {
       .catch((error) => console.error("Error al cargar el formulario:", error));
   }, []);
 
+  useEffect(() => {
+    const verificarEmail = async () => {
+      const emailUsuario = localStorage.getItem("email");
+      if (!emailUsuario) {
+        console.error(
+          "El email del usuario no está disponible en localStorage."
+        );
+        return;
+      }
+
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/verificar-email/${emailUsuario}`
+        );
+
+        if (data.yaRespondio) {
+          setMensaje(
+            "Ya has respondido esta encuesta. Gracias por tu participación."
+          );
+          setAccesoDenegado(true); // Deniega el acceso al formulario
+        }
+      } catch (error) {
+        console.error("Error al verificar el email:", error);
+        setMensaje("Hubo un error al verificar tu email.");
+      }
+    };
+
+    verificarEmail();
+  }, []);
+
   const manejarCambio = (preguntaId, opcionId) => {
     setRespuestas({ ...respuestas, [preguntaId]: opcionId });
   };
 
   const cerrarSesion = () => {
     // Elimina todas las credenciales del almacenamiento local
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    console.log(localStorage);
+
+    localStorage.clear();
 
     // Opcional: Si usas cookies para la autenticación, puedes limpiarlas aquí
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    console.log(localStorage);
 
     // Redirige al usuario al login
     navigate("/");
@@ -58,36 +92,74 @@ export default function Formulario() {
 
     try {
       const respuestasArray = Object.entries(respuestas).map(
-        ([preguntaId, opcionId]) => ({
-          pregunta_id: parseInt(preguntaId),
-          opcion_id: opcionId,
+        ([preguntaId, respuesta]) => ({
+          pregunta_id: parseInt(preguntaId), // Asegúrate de que pregunta_id sea un número
+          opcion_id: typeof respuesta === "number" ? respuesta : null, // Si es una opción, envía el ID
+          respuesta_abierta: typeof respuesta === "string" ? respuesta : null, // Si es texto, envía la respuesta abierta
         })
       );
 
+      console.log("Datos enviados al backend:", respuestasArray); // Depuración
+
+      // Enviar respuestas al backend
       await axios.post("http://localhost:5000/api/respuestas", {
         respuestas: respuestasArray,
       });
 
-      setMensaje("Respuestas enviadas con éxito.");
-      setRespuestas({}); // Resetea las respuestas
-
-      // Obtener el email del usuario desde localStorage
+      // Registrar el email en la base de datos
       const emailUsuario = localStorage.getItem("email");
+      console.log("Email obtenido de localStorage:", emailUsuario);
+
       if (emailUsuario) {
-        console.log(
-          `Respuestas enviadas por el usuario con email: ${emailUsuario}`
-        );
+        try {
+          await axios.post("http://localhost:5000/api/registrar-email", {
+            email: emailUsuario,
+          });
+          console.log("Email enviado al backend:", emailUsuario);
+        } catch (error) {
+          console.error("Error al registrar el email del usuario:", error);
+        }
       } else {
-        console.log("No se encontró el email del usuario en localStorage.");
+        console.error(
+          "El email del usuario no está disponible en localStorage."
+        );
       }
 
-      // Cierra la sesión después de enviar las respuestas
+      setMensaje("Respuestas enviadas con éxito.");
+      setRespuestas({}); // Resetea las respuestas
       cerrarSesion();
     } catch (error) {
       console.error("Error al enviar las respuestas:", error);
       setMensaje("Hubo un error al enviar las respuestas.");
     }
   };
+
+  if (accesoDenegado) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-yellow-500 to-red-600 flex items-center justify-center p-6">
+        <div className="bg-white text-blue-900 shadow-2xl rounded-2xl p-8 w-full max-w-3xl">
+          <h1 className="text-4xl font-bold text-center text-blue-900 mb-6">
+            ¡Gracias por tu participación!
+          </h1>
+          <p className="text-center text-gray-600 font-medium mb-6">
+            Ya has respondido esta encuesta. Agradecemos mucho tu tiempo y tus
+            respuestas.
+          </p>
+          <p className="text-center text-gray-600 font-medium mb-6">
+            Si tienes alguna duda o comentario, no dudes en contactarnos.
+          </p>
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={cerrarSesion}
+              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Mostrar consentimiento si no ha sido aceptado
   if (!consentimiento) {
