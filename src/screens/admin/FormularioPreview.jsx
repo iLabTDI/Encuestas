@@ -22,19 +22,21 @@ export default function FormularioPreview() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-yellow-500 to-red-600 flex items-center justify-center p-6">
-      <div className="bg-white text-blue-900 shadow-2xl rounded-2xl p-8 w-full max-w-3xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-yellow-500 to-red-600 flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white text-blue-900 shadow-2xl rounded-2xl p-6 sm:p-8 w-full max-w-3xl">
         {/* Título */}
-        <h1 className="text-4xl font-bold text-center text-blue-900 mb-6">
+        <h1 className="text-2xl sm:text-4xl font-bold text-center text-blue-900 mb-6">
           Vista previa del formulario
         </h1>
         <p className="text-center text-gray-600 font-medium mb-6">
           Este es un ejemplo de cómo se verá el formulario para los usuarios.
         </p>
 
+        {/* Mensajes de carga o error */}
         {loading && <p className="text-blue-500">Cargando preguntas...</p>}
         {error && <p className="text-red-500">{error}</p>}
 
+        {/* Preguntas */}
         {!loading && !error && (
           <form>
             {preguntas.map((pregunta) => (

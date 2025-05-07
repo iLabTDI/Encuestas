@@ -23,14 +23,15 @@ export default function Dashboard() {
   }, [filtro]);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <main className="flex-1 p-6">
+    <div className="min-h-screen flex">
+      {/* Contenido principal */}
+      <main className="flex-1 p-4 sm:p-6 bg-gray-100">
         <h1 className="text-3xl font-bold mb-6 text-blue-900">
           Análisis de encuestas
         </h1>
 
         {/* Botones de filtro */}
-        <div className="mb-8 flex gap-4">
+        <div className="mb-8 flex flex-wrap gap-4">
           <button
             className={`px-4 py-2 rounded ${
               filtro === "1" ? "bg-blue-500 text-white" : "bg-gray-200"
@@ -58,7 +59,7 @@ export default function Dashboard() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {preguntas.map((pregunta) => (
             <SurveyCard
               key={pregunta.id}

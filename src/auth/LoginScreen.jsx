@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 // Importa useNavigate desde React Router
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 export const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,26 +20,26 @@ export const AuthPage = () => {
   const [session, setSession] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
 
-  // Hook de navegación de React Router
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   // Función para validar el correo
   const validarDominio = (email) => {
     if (email === "hector.rivera2888@alumnos.udg.mx") {
       setSuccess("¡Inicio de sesión exitoso como administrador!");
-      // Guarda el token y el rol en localStorage
-      localStorage.setItem("token", "admin-token"); // Simula un token
-      localStorage.setItem("role", "admin"); // Guarda el rol como admin
-      // Redirige al panel de administración
+      localStorage.setItem("token", "admin-token");
+      localStorage.setItem("role", "admin");
+      localStorage.setItem("email", email);
+      login("admin"); // Actualiza el estado global
       setTimeout(() => {
         navigate("/admin");
       }, 1500);
     } else if (email.endsWith("@alumnos.udg.mx")) {
       setSuccess("¡Inicio de sesión exitoso!");
-      // Guarda el token y el rol en localStorage
-      localStorage.setItem("token", "user-token"); // Simula un token
-      localStorage.setItem("role", "user"); // Guarda el rol como user
-      // Redirige al formulario
+      localStorage.setItem("token", "user-token");
+      localStorage.setItem("role", "user");
+      localStorage.setItem("email", email);
+      login("user"); // Actualiza el estado global
       setTimeout(() => {
         navigate("/formulario");
       }, 1500);
@@ -46,7 +47,6 @@ export const AuthPage = () => {
       setError(
         "Solo se aceptan cuentas institucionales (@alumnos.udg.mx) o el correo del administrador."
       );
-      // Si no es válido, cierra la sesión
       supabase.auth.signOut();
     }
   };

@@ -37,13 +37,13 @@ export default function PreguntasActivas() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="text-2xl font-bold mb-4 text-center">
         Lista de preguntas
       </h1>
 
       {/* Botones de filtro */}
-      <div className="mb-6 flex gap-4 justify-center">
+      <div className="mb-6 flex flex-wrap gap-4 justify-center">
         <button
           className={`px-4 py-2 rounded ${
             filtro === "1" ? "bg-blue-500 text-white" : "bg-gray-200"
@@ -75,19 +75,19 @@ export default function PreguntasActivas() {
         {preguntas.map((pregunta) => (
           <div
             key={pregunta.id}
-            className={`flex justify-between items-center p-3 rounded-md shadow-md ${
+            className={`flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 rounded-md shadow-md ${
               pregunta.estado === 1 ? "bg-blue-100" : "bg-red-100"
             }`}
           >
-            <span>
+            <span className="mb-2 sm:mb-0">
               {pregunta.texto}{" "}
               {pregunta.estado === 0 && (
                 <span className="text-red-500 text-sm">(Inactiva)</span>
               )}
             </span>
-            <div className="space-x-2">
+            <div className="flex gap-2">
               <Link to={`/admin/editar-pregunta/${pregunta.id}`}>
-                <button className="bg-blue-500 text-white p-2 rounded-md mr-2">
+                <button className="bg-blue-500 text-white p-2 rounded-md">
                   ✏️
                 </button>
               </Link>

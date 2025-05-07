@@ -215,34 +215,58 @@ app.get("/api/formulario", async (req, res) => {
 
 // Endpoint para enviar respuestas
 app.post("/api/respuestas", async (req, res) => {
-  const { pregunta_id, opcion_id, respuesta_abierta } = req.body;
+  const { respuestas } = req.body;
+
+  if (!respuestas || respuestas.length === 0) {
+    return res.status(400).send("No se enviaron respuestas.");
+  }
 
   try {
-    // Verificar si la pregunta es abierta o cerrada
-    const [pregunta] = await db.query(
-      "SELECT tipo FROM preguntas WHERE id = ?",
-      [pregunta_id]
-    );
+    for (const respuesta of respuestas) {
+      const { pregunta_id, opcion_id, respuesta_abierta } = respuesta;
 
-    if (!pregunta) {
-      return res.status(404).send("La pregunta no existe.");
+      if (!pregunta_id) {
+        return res.status(400).send("El campo pregunta_id es obligatorio.");
+      }
+
+      // Verificar si la pregunta existe
+      const [pregunta] = await db.query(
+        "SELECT tipo FROM preguntas WHERE id = ?",
+        [pregunta_id]
+      );
+
+      if (!pregunta || pregunta.length === 0) {
+        return res.status(404).send("La pregunta no existe.");
+      }
+
+      if (pregunta[0].tipo === "abierta") {
+        if (!respuesta_abierta || respuesta_abierta.trim() === "") {
+          return res
+            .status(400)
+            .send(
+              "La respuesta para una pregunta abierta no puede estar vacía."
+            );
+        }
+
+        await db.query(
+          "INSERT INTO respuestas (pregunta_id, respuesta_abierta) VALUES (?, ?)",
+          [pregunta_id, respuesta_abierta]
+        );
+      } else {
+        if (!opcion_id) {
+          return res
+            .status(400)
+            .send("Debe seleccionarse una opción para preguntas cerradas.");
+        }
+
+        await db.query(
+          "INSERT INTO respuestas (pregunta_id, opcion_id) VALUES (?, ?)",
+          [pregunta_id, opcion_id]
+        );
+      }
     }
 
-    if (pregunta.tipo === "abierta") {
-      // Guardar respuesta abierta
-      await db.query(
-        "INSERT INTO respuestas (pregunta_id, respuesta_abierta) VALUES (?, ?)",
-        [pregunta_id, respuesta_abierta]
-      );
-    } else {
-      // Guardar respuesta cerrada
-      await db.query(
-        "INSERT INTO respuestas (pregunta_id, opcion_id) VALUES (?, ?)",
-        [pregunta_id, opcion_id]
-      );
-    }
-
-    res.status(200).send("Respuesta guardada con éxito.");
+    res.status(200).send("Respuestas guardadas con éxito.");
   } catch (err) {
     console.error("Error al guardar la respuesta:", err);
     res.status(500).send("Error al guardar la respuesta.");
@@ -347,6 +371,46 @@ app.get("/api/preguntas/:id/respuestas", async (req, res) => {
   } catch (err) {
     console.error("Error al obtener las respuestas:", err);
     res.status(500).send("Error al obtener las respuestas.");
+  }
+});
+
+// Endpoint para verificar si un email ya respondió
+app.get("/api/verificar-email/:email", async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const [result] = await db.query(
+      "SELECT * FROM emails_respondidos WHERE email = ?",
+      [email]
+    );
+
+    if (result.length > 0) {
+      return res.status(200).json({ yaRespondio: true });
+    }
+
+    res.status(200).json({ yaRespondio: false });
+  } catch (error) {
+    console.error("Error al verificar el email:", error);
+    res.status(500).send("Error al verificar el email.");
+  }
+});
+
+// Endpoint para registrar un email
+app.post("/api/registrar-email", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).send("El email es obligatorio.");
+  }
+
+  try {
+    await db.query("INSERT INTO emails_respondidos (email) VALUES (?)", [
+      email,
+    ]);
+    res.status(200).send("Email registrado con éxito.");
+  } catch (error) {
+    console.error("Error al registrar el email:", error);
+    res.status(500).send("Error al registrar el email.");
   }
 });
 

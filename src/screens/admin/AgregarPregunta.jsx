@@ -6,7 +6,7 @@ export default function AgregarPregunta() {
   const [pregunta, setPregunta] = useState("");
   const [opciones, setOpciones] = useState([{ texto: "" }]);
   const [mensaje, setMensaje] = useState("");
-  const [tipoPregunta, setTipoPregunta] = useState("cerrada"); // Estado para el tipo de pregunta
+  const [tipoPregunta, setTipoPregunta] = useState("cerrada");
 
   const agregarOpcion = () => {
     setOpciones([...opciones, { texto: "" }]);
@@ -26,14 +26,13 @@ export default function AgregarPregunta() {
   };
 
   const manejarEnvioPregunta = async (e) => {
-    e.preventDefault(); // Previene la recarga automática
-    console.log("Enviando pregunta:", { texto: pregunta, tipo: tipoPregunta }); // Verifica el valor
+    e.preventDefault();
     try {
       const respuestaPregunta = await axios.post(
         "http://localhost:5000/api/preguntas",
         {
           texto: pregunta,
-          tipo: tipoPregunta, // Enviar el tipo de pregunta
+          tipo: tipoPregunta,
         }
       );
 
@@ -75,7 +74,7 @@ export default function AgregarPregunta() {
   };
 
   return (
-    <div className="p-6 flex flex-col items-center">
+    <div className="p-4 sm:p-6 flex flex-col items-center">
       <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">
         Añadir Pregunta
       </h1>
@@ -89,7 +88,7 @@ export default function AgregarPregunta() {
 
       <form
         onSubmit={manejarEnvioPregunta}
-        className="bg-white p-6 shadow-lg rounded-lg max-w-lg w-full"
+        className="bg-white p-4 sm:p-6 shadow-lg rounded-lg w-full max-w-lg"
       >
         <label className="block text-gray-700 font-medium mb-2">
           Pregunta:
@@ -98,11 +97,11 @@ export default function AgregarPregunta() {
           value={pregunta}
           onChange={(e) => setPregunta(e.target.value)}
           onInput={(e) => {
-            e.target.style.height = "auto"; // Restablece la altura
-            e.target.style.height = `${e.target.scrollHeight}px`; // Ajusta la altura al contenido
+            e.target.style.height = "auto";
+            e.target.style.height = `${e.target.scrollHeight}px`;
           }}
           placeholder="Ingresa la pregunta"
-          className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
+          className="w-full p-3 border rounded-md mb-4 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
         />
 
         <label className="block text-gray-700 font-medium mb-2">
@@ -110,25 +109,23 @@ export default function AgregarPregunta() {
         </label>
         <select
           value={tipoPregunta}
-          onChange={(e) => {
-            const nuevoTipo = e.target.value;
-            console.log(`Tipo de pregunta cambiado a: ${nuevoTipo}`); // Log para registrar el cambio
-            setTipoPregunta(nuevoTipo);
-          }}
+          onChange={(e) => setTipoPregunta(e.target.value)}
           className="w-full p-3 border rounded-md mb-6 ring-1 ring-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="cerrada">Cerrada (con opciones)</option>
           <option value="abierta">Abierta (respuesta libre)</option>
         </select>
 
-        {/* Mostrar opciones solo si la pregunta es cerrada */}
         {tipoPregunta === "cerrada" && (
           <>
             <label className="block text-gray-700 font-medium mb-2">
               Opciones:
             </label>
             {opciones.map((opcion, index) => (
-              <div key={index} className="flex items-center mb-4">
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row items-center mb-4"
+              >
                 <OpcionNew
                   index={index + 1}
                   valor={opcion.texto}
@@ -148,7 +145,7 @@ export default function AgregarPregunta() {
           </>
         )}
 
-        <div className="flex justify-between mt-6">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6">
           <button
             type="button"
             onClick={() => window.history.back()}
