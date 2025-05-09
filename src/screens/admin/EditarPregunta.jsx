@@ -10,6 +10,7 @@ export default function EditarPregunta() {
   const [pregunta, setPregunta] = useState("");
   const [opciones, setOpciones] = useState([]);
   const [mensaje, setMensaje] = useState("");
+  const [showModal, setShowModal] = useState(false); // Estado para la ventana emergente
 
   useEffect(() => {
     axios
@@ -62,7 +63,19 @@ export default function EditarPregunta() {
       });
 
       setMensaje("Pregunta actualizada con éxito");
-      setTimeout(() => navigate("/preguntas-activas"), 1500);
+
+      // Limpiar los campos después de guardar
+      setPregunta("");
+      setOpciones([]);
+
+      // Mostrar la ventana emergente
+      setShowModal(true);
+
+      // Opcional: Redirigir después de un tiempo
+      setTimeout(() => {
+        setShowModal(false);
+        navigate(-2); // Regresa a la página anterior
+      }, 2000);
     } catch (error) {
       console.error("Error al actualizar la pregunta:", error);
       setMensaje("Error al actualizar la pregunta.");
@@ -124,6 +137,26 @@ export default function EditarPregunta() {
           </button>
         </div>
       </form>
+
+      {/* Ventana emergente */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 text-green-600">
+              ¡Cambios guardados con éxito!
+            </h2>
+            <button
+              onClick={() => {
+                setShowModal(false);
+                navigate("/preguntas-activas");
+              }}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

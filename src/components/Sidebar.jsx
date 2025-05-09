@@ -1,12 +1,19 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   // Función para verificar si la ruta está activa
   const isActive = (path) => location.pathname === path;
+
+  // Función para cerrar sesión
+  const handleLogout = () => {
+    localStorage.clear(); // Limpia el almacenamiento local
+    navigate("/"); // Redirige al usuario a la página de inicio de sesión
+  };
 
   return (
     <div className="relative">
@@ -27,6 +34,15 @@ export default function Sidebar() {
         <h2 className="text-2xl font-bold mb-6 text-center border-b border-blue-700 pb-4">
           Administrador
         </h2>
+
+        {/* Botón de cerrar sesión */}
+        <button
+          onClick={handleLogout}
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md mb-6"
+        >
+          🔒 Cerrar sesión
+        </button>
+
         <nav className="space-y-4">
           <Link
             to="/admin"

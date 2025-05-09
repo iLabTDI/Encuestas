@@ -6,8 +6,10 @@ export default function Formulario() {
   const [preguntas, setPreguntas] = useState([]);
   const [respuestas, setRespuestas] = useState({});
   const [mensaje, setMensaje] = useState("");
-  const [consentimiento, setConsentimiento] = useState(false); // Estado para el consentimiento
+  const [consentimiento, setConsentimiento] = useState(false);
   const [accesoDenegado, setAccesoDenegado] = useState(false);
+  const [showModal, setShowModal] = useState(false); // Estado para la ventana emergente de validación
+  const [showGraciasModal, setShowGraciasModal] = useState(false); // Estado para la ventana emergente de agradecimiento
   const navigate = useNavigate();
 
   // Verificar autenticación al cargar el componente
@@ -86,50 +88,61 @@ export default function Formulario() {
     );
 
     if (preguntasSinResponder.length > 0) {
-      setMensaje("Por favor, responde todas las preguntas antes de enviar.");
+      setShowModal(true); // Muestra la ventana emergente de validación
       return;
     }
 
     try {
+      const emailUsuario = localStorage.getItem("email");
+      console.log("Email obtenido de localStorage:", emailUsuario);
+
+      if (!emailUsuario) {
+        console.error(
+          "El email del usuario no está disponible en localStorage."
+        );
+        setMensaje("No se pudo obtener el email del usuario.");
+        return;
+      }
+
+      // Verificar si el email ya existe en la base de datos
+      const { data } = await axios.get(
+        `http://localhost:5000/api/verificar-email/${emailUsuario}`
+      );
+
+      if (data.yaRespondio) {
+        console.log("El email ya existe en la base de datos:", emailUsuario);
+        setMensaje(
+          "Ya has respondido esta encuesta. Gracias por tu participación."
+        );
+        return;
+      }
+
+      // Si el email no existe, registrar las respuestas
       const respuestasArray = Object.entries(respuestas).map(
         ([preguntaId, respuesta]) => ({
-          pregunta_id: parseInt(preguntaId), // Asegúrate de que pregunta_id sea un número
+          pregunta_id: parseInt(preguntaId),
           opcion_id: typeof respuesta === "number" ? respuesta : null, // Si es una opción, envía el ID
           respuesta_abierta: typeof respuesta === "string" ? respuesta : null, // Si es texto, envía la respuesta abierta
         })
       );
 
-      console.log("Datos enviados al backend:", respuestasArray); // Depuración
-
-      // Enviar respuestas al backend
       await axios.post("http://localhost:5000/api/respuestas", {
         respuestas: respuestasArray,
       });
 
       // Registrar el email en la base de datos
-      const emailUsuario = localStorage.getItem("email");
-      console.log("Email obtenido de localStorage:", emailUsuario);
+      await axios.post("http://localhost:5000/api/registrar-email", {
+        email: emailUsuario,
+      });
+      console.log("Email registrado en la base de datos:", emailUsuario);
 
-      if (emailUsuario) {
-        try {
-          await axios.post("http://localhost:5000/api/registrar-email", {
-            email: emailUsuario,
-          });
-          console.log("Email enviado al backend:", emailUsuario);
-        } catch (error) {
-          console.error("Error al registrar el email del usuario:", error);
-        }
-      } else {
-        console.error(
-          "El email del usuario no está disponible en localStorage."
-        );
-      }
-
-      setMensaje("Respuestas enviadas con éxito.");
-      setRespuestas({}); // Resetea las respuestas
-      cerrarSesion();
+      // Mostrar ventana emergente de agradecimiento
+      setShowGraciasModal(true);
     } catch (error) {
-      console.error("Error al enviar las respuestas:", error);
+      console.error(
+        "Error al enviar las respuestas o registrar el email:",
+        error
+      );
       setMensaje("Hubo un error al enviar las respuestas.");
     }
   };
@@ -337,6 +350,45 @@ export default function Formulario() {
           </button>
         </form>
       </div>
+
+      {/* Ventana emergente */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 text-red-600">
+              ¡Faltan preguntas por responder!
+            </h2>
+            <p className="text-gray-700 mb-4">
+              Por favor, responde todas las preguntas antes de enviar.
+            </p>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Ventana emergente de agradecimiento */}
+      {showGraciasModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 text-green-600">
+              ¡Gracias por tu participación!
+            </h2>
+            <p className="text-gray-700 mb-4">
+              Tus respuestas han sido enviadas con éxito.
+            </p>
+            <button
+              onClick={cerrarSesion}
+              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+            >
+              Terminar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

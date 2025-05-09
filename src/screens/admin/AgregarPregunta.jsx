@@ -7,6 +7,7 @@ export default function AgregarPregunta() {
   const [opciones, setOpciones] = useState([{ texto: "" }]);
   const [mensaje, setMensaje] = useState("");
   const [tipoPregunta, setTipoPregunta] = useState("cerrada");
+  const [showModal, setShowModal] = useState(false); // Estado para la ventana emergente
 
   const agregarOpcion = () => {
     setOpciones([...opciones, { texto: "" }]);
@@ -43,6 +44,14 @@ export default function AgregarPregunta() {
           const id = respuestaPregunta.data.id;
           await guardarOpciones(id);
         }
+
+        // Limpiar los campos después de guardar
+        setPregunta("");
+        setOpciones([{ texto: "" }]);
+        setTipoPregunta("cerrada");
+
+        // Mostrar la ventana emergente
+        setShowModal(true);
       }
     } catch (error) {
       console.error("Error al guardar la pregunta:", error);
@@ -162,6 +171,23 @@ export default function AgregarPregunta() {
           </button>
         </div>
       </form>
+
+      {/* Ventana emergente */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 text-green-600">
+              ¡Pregunta guardada con éxito!
+            </h2>
+            <button
+              onClick={() => setShowModal(false)}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
