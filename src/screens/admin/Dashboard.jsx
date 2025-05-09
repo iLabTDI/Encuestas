@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Sidebar from "../../components/Sidebar";
 import SurveyCard from "../../components/SurveyCard";
 
 export default function Dashboard() {

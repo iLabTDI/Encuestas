@@ -7,6 +7,7 @@ import Modal from "./Modal"; // Componente para la ventana modal
 export default function SurveyCard({ id, estado }) {
   const [datos, setDatos] = useState([]);
   const [pregunta, setPregunta] = useState("");
+  const [tipo, setTipo] = useState(""); // Tipo de pregunta (cerrada o abierta)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +60,10 @@ export default function SurveyCard({ id, estado }) {
         const response = await axios.get(
           `http://localhost:5000/api/preguntas/${id}/votos`
         );
+        console.log("Datos obtenidos para la pregunta:", response.data);
+
         setPregunta(response.data.texto);
+        setTipo(response.data.tipo);
         setDatos(response.data.datos);
       } catch (err) {
         console.error("Error al obtener los datos de la pregunta:", err);
@@ -95,7 +99,8 @@ export default function SurveyCard({ id, estado }) {
             <h2 className="text-2xl font-bold mb-4">{pregunta}</h2>
             {loading && <p className="text-blue-500">Cargando datos...</p>}
             {error && <p className="text-red-500">{error}</p>}
-            {!loading && !error && datos.length > 0 && (
+
+            {!loading && !error && tipo === "cerrada" && datos.length > 0 && (
               <>
                 {/* Gráfico de pastel */}
                 <div className="w-full flex justify-center mb-6">
@@ -168,7 +173,29 @@ export default function SurveyCard({ id, estado }) {
               </>
             )}
 
-            {!loading && !error && datos.length === 0 && (
+            {!loading && !error && tipo === "abierta" && (
+              <>
+                {/* Lista de respuestas abiertas */}
+                <h3 className="text-lg font-semibold mb-4">
+                  Respuestas abiertas:
+                </h3>
+                <ul className="list-disc pl-6">
+                  {datos.length > 0 ? (
+                    datos.map((respuesta, index) => (
+                      <li key={index} className="mb-2">
+                        {respuesta.texto}
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500">
+                      No hay respuestas disponibles.
+                    </p>
+                  )}
+                </ul>
+              </>
+            )}
+
+            {!loading && !error && datos.length === 0 && tipo === "cerrada" && (
               <p className="text-center text-red-500">
                 No hay datos disponibles para esta pregunta.
               </p>

@@ -43,10 +43,17 @@ export const AuthPage = () => {
       setTimeout(() => {
         navigate("/formulario");
       }, 1500);
+    } else if (email.endsWith("@academicos.udg.mx")) {
+      setSuccess("¡Inicio de sesión exitoso!");
+      localStorage.setItem("token", "user-token");
+      localStorage.setItem("role", "user");
+      localStorage.setItem("email", email);
+      login("user"); // Actualiza el estado global
+      setTimeout(() => {
+        navigate("/formulario");
+      }, 1500);
     } else {
-      setError(
-        "Solo se aceptan cuentas institucionales (@alumnos.udg.mx) o el correo del administrador."
-      );
+      setError("Solo se aceptan cuentas institucionales de UDG.");
       supabase.auth.signOut();
     }
   };

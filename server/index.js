@@ -281,30 +281,52 @@ app.get("/api/preguntas/:id/votos", async (req, res) => {
     const [pregunta] = await db.query("SELECT * FROM preguntas WHERE id = ?", [
       id,
     ]);
-    if (pregunta.length === 0) {
-      return res.status(404).json({ mensaje: "Pregunta no encontrada" });
+
+    if (!pregunta || pregunta.length === 0) {
+      return res.status(404).send("La pregunta no existe.");
     }
 
-    const [opciones] = await db.query(
-      `SELECT o.id AS opcion_id, o.texto AS opcion_texto, COUNT(r.id) AS votos
-       FROM opciones o
-       LEFT JOIN respuestas r ON o.id = r.opcion_id
-       WHERE o.pregunta_id = ?
-       GROUP BY o.id`,
-      [id]
-    );
+    if (pregunta[0].tipo === "abierta") {
+      // Obtener respuestas abiertas
+      const [respuestas] = await db.query(
+        "SELECT respuesta_abierta FROM respuestas WHERE pregunta_id = ?",
+        [id]
+      );
+      return res.status(200).json({
+        id: pregunta[0].id,
+        texto: pregunta[0].texto,
+        tipo: "abierta",
+        datos: respuestas.map((r) => ({ texto: r.respuesta_abierta })),
+      });
+    } else {
+      // Obtener opciones y votos para preguntas cerradas
+      const [opciones] = await db.query(
+        "SELECT id, texto FROM opciones WHERE pregunta_id = ?",
+        [id]
+      );
+      const [respuestas] = await db.query(
+        "SELECT opcion_id, COUNT(*) AS votos FROM respuestas WHERE pregunta_id = ? GROUP BY opcion_id",
+        [id]
+      );
 
-    res.status(200).json({
-      id: pregunta[0].id,
-      texto: pregunta[0].texto,
-      datos: opciones.map((opcion) => ({
-        name: opcion.opcion_texto,
-        value: opcion.votos,
-      })),
-    });
+      const datos = opciones.map((opcion) => {
+        const respuesta = respuestas.find((r) => r.opcion_id === opcion.id);
+        return {
+          name: opcion.texto,
+          value: respuesta ? respuesta.votos : 0,
+        };
+      });
+
+      return res.status(200).json({
+        id: pregunta[0].id,
+        texto: pregunta[0].texto,
+        tipo: "cerrada",
+        datos,
+      });
+    }
   } catch (err) {
-    console.error("Error al obtener la pregunta con votos:", err);
-    res.status(500).json({ mensaje: "Error al obtener la pregunta con votos" });
+    console.error("Error al obtener los datos de la pregunta:", err);
+    res.status(500).send("Error al obtener los datos de la pregunta.");
   }
 });
 
