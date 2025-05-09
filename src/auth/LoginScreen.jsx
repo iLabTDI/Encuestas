@@ -56,7 +56,7 @@ export const AuthPage = () => {
         navigate("/formulario");
       }, 1500);
     } else {
-      setError("Solo se aceptan cuentas institucionales de UDG.");
+      setError("Solo se aceptan correos institucionales de UDG.");
       supabase.auth.signOut();
     }
   };
