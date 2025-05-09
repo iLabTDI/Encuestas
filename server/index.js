@@ -436,6 +436,17 @@ app.post("/api/registrar-email", async (req, res) => {
   }
 });
 
+app.use(
+  "/encuesta",
+  express.static(path.join(__dirname, "../../../www/misitio.com/encuesta"))
+);
+
+app.get("/encuesta/*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../../www/misitio.com/encuesta", "index.html")
+  );
+});
+
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
