@@ -25,7 +25,10 @@ export const AuthPage = () => {
 
   // Función para validar el correo
   const validarDominio = (email) => {
-    if (email === "hector.rivera2888@alumnos.udg.mx") {
+    if (
+      email === "hector.rivera2888@alumnos.udg.mx" ||
+      email === "lizeth.crisosto9230@alumnos.udg.mx"
+    ) {
       setSuccess("¡Inicio de sesión exitoso como administrador!");
       localStorage.setItem("token", "admin-token");
       localStorage.setItem("role", "admin");
